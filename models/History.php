@@ -11,7 +11,9 @@ namespace inblank\team\models;
 
 use inblank\team\traits\CommonTrait;
 use Yii;
+use yii\base\InvalidParamException;
 use yii\db\ActiveRecord;
+use yii\db\Expression;
 
 /**
  * This is the model class for table "{{%team_history}}".
@@ -33,6 +35,13 @@ class History extends \yii\db\ActiveRecord
 {
     use CommonTrait;
 
+    /** Add action */
+    const ACTION_ADD = 1;
+    /** Change action */
+    const ACTION_CHANGE = 2;
+    /** Delete action */
+    const ACTION_DELETE = 3;
+
     /**
      * @inheritdoc
      */
@@ -47,9 +56,38 @@ class History extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['team_id', 'user_id', 'action', 'date'], 'required'],
+            [['team_id', 'user_id', 'action'], 'required'],
             [['team_id', 'user_id', 'role_id', 'speciality_id', 'action'], 'integer'],
+            [
+                'team_id', 'exist',
+                'targetClass' => self::di('Team'),
+                'targetAttribute' => 'id'
+            ],
+            [
+                'user_id', 'exist',
+                'targetClass' => self::di('User'),
+                'targetAttribute' => self::userPKName()
+            ],
+            [
+                'user_id', 'exist',
+                'targetClass' => self::di('Member'),
+                'targetAttribute' => ['team_id', 'user_id'],
+            ],
+            [['role_id', 'speciality_id'], 'default', 'value' => null],
+            [
+                'role_id', 'exist',
+                'targetClass' => self::di('Role'),
+                'targetAttribute' => 'id',
+                'skipOnEmpty' => true,
+            ],
+            [
+                'speciality_id', 'exist',
+                'targetClass' => self::di('Speciality'),
+                'targetAttribute' => 'id',
+                'skipOnEmpty' => true,
+            ],
             ['date', 'date', 'format' => 'php:Y-m-d H:i:s'],
+            ['action', 'in', 'range' => [self::ACTION_ADD, self::ACTION_CHANGE, self::ACTION_DELETE]],
         ];
     }
 
@@ -66,6 +104,21 @@ class History extends \yii\db\ActiveRecord
             'speciality_id' => Yii::t('team_general', 'Speciality'),
             'action' => Yii::t('team_general', 'Action'),
             'date' => Yii::t('team_general', 'Date'),
+        ];
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function behaviors()
+    {
+        return [
+            [
+                'class' => \yii\behaviors\TimestampBehavior::className(),
+                'createdAtAttribute' => 'date',
+                'updatedAtAttribute' => false,
+                'value' => new Expression('NOW()'),
+            ]
         ];
     }
 
@@ -100,4 +153,114 @@ class History extends \yii\db\ActiveRecord
     {
         return $this->hasOne(self::di('User'), [$this->userPKName() => 'user_id']);
     }
+
+    /**
+     * History action
+     * @param integer $action history action id: self::ACTION_ADD, self::ACTION_CHANGE, self::ACTION_DELETE
+     * @param ActiveRecord $team team model
+     * @param ActiveRecord $user user model
+     * @param ActiveRecord|null $subject subject model Role or Speciality.
+     * @return bool
+     * @throws \yii\base\InvalidConfigException
+     */
+    protected static function _action($action, ActiveRecord $team, ActiveRecord $user, ActiveRecord $subject = null)
+    {
+        $class = self::di('Team');
+        if (!($team instanceof $class)) {
+            throw new InvalidParamException('Not Team object to History action');
+        }
+        $class = self::di('User');
+        if (!($user instanceof $class)) {
+            throw new InvalidParamException('Not User object to History action');
+        }
+        /** @var self $record */
+        $record = Yii::createObject([
+            'class' => self::di('History'),
+            'team_id' => $team->id,
+            'user_id' => $user->{self::userPKName()},
+            'action' => $action,
+        ]);
+        if ($subject !== null) {
+            $class = self::di('Role');
+            $isRole = $subject instanceof $class;
+            $class = self::di('Speciality');
+            $isSpeciality = $subject instanceof $class;
+            if (!$isRole && !$isSpeciality) {
+                throw new InvalidParamException('Not Role or Speciality object to History action');
+            }
+            $record->setAttribute($isRole ? 'role_id' : 'speciality_id', $subject->id);
+        }
+        return $record->save();
+    }
+
+    /**
+     * Join team action
+     * @param ActiveRecord $team team model
+     * @param ActiveRecord $user user model
+     * @return bool
+     */
+    public static function joinTeam($team, $user)
+    {
+        return self::_action(self::ACTION_ADD, $team, $user);
+    }
+
+    /**
+     * Leave team action
+     * @param ActiveRecord $team team model
+     * @param ActiveRecord $user user model
+     * @return bool
+     */
+    public static function leaveTeam($team, $user)
+    {
+        return self::_action(self::ACTION_DELETE, $team, $user);
+    }
+
+    /**
+     * Add role to member action
+     * @param ActiveRecord $team team model
+     * @param ActiveRecord $user user model
+     * @param ActiveRecord $role role model
+     * @return bool
+     */
+    public static function addRole($team, $user, $role)
+    {
+        return self::_action(self::ACTION_ADD, $team, $user, $role);
+    }
+
+    /**
+     * Delete role from member action
+     * @param ActiveRecord $team team model
+     * @param ActiveRecord $user user model
+     * @param ActiveRecord $role role model
+     * @return bool
+     */
+    public static function deleteRole($team, $user, $role)
+    {
+        return self::_action(self::ACTION_DELETE, $team, $user, $role);
+    }
+
+    /**
+     * Add speciality to member action
+     * @param ActiveRecord $team team model
+     * @param ActiveRecord $user user model
+     * @param ActiveRecord $speciality speciality model
+     * @return bool
+     */
+    public static function addSpeciality($team, $user, $speciality)
+    {
+        return self::_action(self::ACTION_ADD, $team, $user, $speciality);
+    }
+
+    /**
+     * Change speciality for member action
+     * @param ActiveRecord $team team model
+     * @param ActiveRecord $user user model
+     * @param ActiveRecord $speciality speciality model
+     * @return bool
+     */
+    public static function changeSpeciality($team, $user, $speciality)
+    {
+        return self::_action(self::ACTION_CHANGE, $team, $user, $speciality);
+    }
+
 }
