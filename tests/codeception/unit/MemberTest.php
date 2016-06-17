@@ -4,7 +4,6 @@ namespace tests\codeception;
 
 use Codeception\Specify;
 use inblank\team\models\Member;
-use tests\codeception\_fixtures\ProfileFixture;
 use tests\codeception\_fixtures\SpecialityFixture;
 use tests\codeception\_fixtures\TeamFixture;
 use tests\codeception\_fixtures\UserFixture;
@@ -24,7 +23,6 @@ class MemberTest extends TestCase
             'speciality' => SpecialityFixture::className(),
             'team' => TeamFixture::className(),
             'user' => UserFixture::className(),
-            'profile' => ProfileFixture::className(),
         ];
     }
 

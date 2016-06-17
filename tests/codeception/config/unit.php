@@ -17,15 +17,10 @@ return [
         ],
     ],
     'modules'=>[
-        'user'=>[
-            'class'=>'dektrium\user\Module',
-            'admins'=>['admin'],
-            'enableRegistration'=>false,
-        ],
         'team'=>[
             'class'=>'inblank\team\Module',
             'modelMap'=>[
-                'User' => 'dektrium\user\models\User',
+                'User' => 'app\models\User',
             ]
         ]
     ],

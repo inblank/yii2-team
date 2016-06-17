@@ -7,43 +7,6 @@ SET time_zone = "+00:00";
 -- --------------------------------------------------------
 
 --
--- Table structure for table `profile`
---
-
-DROP TABLE IF EXISTS `profile`;
-CREATE TABLE `profile` (
-  `user_id` int(11) NOT NULL,
-  `name` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `public_email` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `gravatar_email` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `gravatar_id` varchar(32) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `location` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `website` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `bio` text COLLATE utf8_unicode_ci
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `social_account`
---
-
-DROP TABLE IF EXISTS `social_account`;
-CREATE TABLE `social_account` (
-  `id` int(11) NOT NULL,
-  `user_id` int(11) DEFAULT NULL,
-  `provider` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
-  `client_id` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
-  `data` text COLLATE utf8_unicode_ci,
-  `code` varchar(32) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `created_at` int(11) DEFAULT NULL,
-  `email` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `username` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
-
--- --------------------------------------------------------
-
---
 -- Table structure for table `team_history`
 --
 
@@ -132,57 +95,19 @@ CREATE TABLE `team_team` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `token`
---
-
-DROP TABLE IF EXISTS `token`;
-CREATE TABLE `token` (
-  `user_id` int(11) NOT NULL,
-  `code` varchar(32) COLLATE utf8_unicode_ci NOT NULL,
-  `created_at` int(11) NOT NULL,
-  `type` smallint(6) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
-
--- --------------------------------------------------------
-
---
 -- Table structure for table `user`
 --
 
 DROP TABLE IF EXISTS `user`;
 CREATE TABLE `user` (
-  `id` int(11) NOT NULL,
-  `username` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
-  `email` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
-  `password_hash` varchar(60) COLLATE utf8_unicode_ci NOT NULL,
-  `auth_key` varchar(32) COLLATE utf8_unicode_ci NOT NULL,
-  `confirmed_at` int(11) DEFAULT NULL,
-  `unconfirmed_email` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `blocked_at` int(11) DEFAULT NULL,
-  `registration_ip` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `created_at` int(11) NOT NULL,
-  `updated_at` int(11) NOT NULL,
-  `flags` int(11) NOT NULL DEFAULT '0'
+    `id`   int(11)                 NOT NULL,
+    `name` VARCHAR(255)
+           COLLATE utf8_unicode_ci NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 --
 -- Indexes for dumped tables
 --
-
---
--- Indexes for table `profile`
---
-ALTER TABLE `profile`
-  ADD PRIMARY KEY (`user_id`);
-
---
--- Indexes for table `social_account`
---
-ALTER TABLE `social_account`
-  ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `account_unique` (`provider`,`client_id`),
-  ADD UNIQUE KEY `account_unique_code` (`code`),
-  ADD KEY `fk_user_account` (`user_id`);
 
 --
 -- Indexes for table `team_history`
@@ -232,28 +157,11 @@ ALTER TABLE `team_team`
   ADD KEY `fk__team_team__owner` (`owner_id`);
 
 --
--- Indexes for table `token`
---
-ALTER TABLE `token`
-  ADD UNIQUE KEY `token_unique` (`user_id`,`code`,`type`);
-
---
 -- Indexes for table `user`
 --
 ALTER TABLE `user`
-  ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `user_unique_email` (`email`),
-  ADD UNIQUE KEY `user_unique_username` (`username`);
+    ADD PRIMARY KEY (`id`);
 
---
--- AUTO_INCREMENT for dumped tables
---
-
---
--- AUTO_INCREMENT for table `social_account`
---
-ALTER TABLE `social_account`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 --
 -- AUTO_INCREMENT for table `team_history`
 --
@@ -282,18 +190,6 @@ ALTER TABLE `user`
 --
 -- Constraints for dumped tables
 --
-
---
--- Constraints for table `profile`
---
-ALTER TABLE `profile`
-  ADD CONSTRAINT `fk_user_profile` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE CASCADE;
-
---
--- Constraints for table `social_account`
---
-ALTER TABLE `social_account`
-  ADD CONSTRAINT `fk_user_account` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `team_history`
@@ -327,10 +223,5 @@ ALTER TABLE `team_team`
   ADD CONSTRAINT `fk__team_team__creator` FOREIGN KEY (`creator_id`) REFERENCES `user` (`id`) ON DELETE CASCADE,
   ADD CONSTRAINT `fk__team_team__owner` FOREIGN KEY (`owner_id`) REFERENCES `user` (`id`) ON DELETE CASCADE;
 
---
--- Constraints for table `token`
---
-ALTER TABLE `token`
-  ADD CONSTRAINT `fk_user_token` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE CASCADE;
 SET FOREIGN_KEY_CHECKS=1;
 COMMIT;
