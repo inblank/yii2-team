@@ -30,11 +30,11 @@ trait CommonTrait
      * @return string
      * @throws InvalidConfigException
      */
-    protected function userPKName()
+    protected static function userPKName()
     {
         static $pk;
         if ($pk === null) {
-            $class = $this->di('User');
+            $class = self::di('User');
             $pk = implode('', $class::primaryKey());
         }
         return $pk;
