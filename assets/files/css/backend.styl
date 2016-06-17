@@ -1,0 +1,81 @@
+@import "nib"
+
+$emblemWidth = 200px
+$emblemPadding = 5px
+
+.team-form, .team-view
+  .team-emblem
+    position relative
+    width $emblemWidth
+    height $emblemWidth
+    float left
+    border 1px solid #ddd
+    box-sizing border-box
+    .image
+      width $emblemWidth - 2 * $emblemPadding
+      height $emblemWidth - 2 * $emblemPadding
+      position absolute
+      top $emblemPadding
+      left $emblemPadding
+    .dropzone
+      display table
+      width 100%
+      height 100%
+      padding 0
+      .dz-preview
+        margin 0
+        position absolute
+        top $emblemPadding
+        left $emblemPadding
+        &:hover
+          .dz-details
+            display none
+          .dz-image
+            img
+              transform none
+              filter none
+              -webkit-filter none
+        .dz-image
+          width $emblemWidth - 2 * $emblemPadding
+          height $emblemWidth - 2 * $emblemPadding
+          border-radius 0
+    .dz-default
+      position relative
+      display table-cell
+      vertical-align bottom
+      text-align center
+      width 100%
+      height 100%
+      span
+        display block
+        position absolute
+        height 24px
+        line-height 24px
+        bottom -26px
+        left -3px
+        margin-top 3px
+        width $emblemWidth
+        background-color #ddd
+  .team-info
+    margin-left 220px
+.team-form
+  .team-emblem
+    cursor pointer
+.team-dismiss
+  color #a00
+
+.team-warning
+  font-size 0.85em
+  color #f04a39
+  font-style italic
+.team-list
+  td
+    vertical-align middle !important
+  .team-role-change
+    float right
+  .team-emblem
+    width 64px
+    text-align center
+    .image
+      width 100%
+      height auto
