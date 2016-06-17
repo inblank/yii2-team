@@ -56,7 +56,13 @@ class MemberRole extends ActiveRecord
                 'targetClass' => $this->di('User'),
                 'targetAttribute' => $this->userPKName()
             ],
-            ['role_id', 'exist',
+            [
+                'user_id', 'exist',
+                'targetClass' => $this->di('Member'),
+                'targetAttribute' => ['team_id', 'user_id'],
+            ],
+            [
+                'role_id', 'exist',
                 'targetClass' => $this->di('Role'),
                 'targetAttribute' => 'id'
             ],
