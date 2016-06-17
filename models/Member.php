@@ -59,17 +59,17 @@ class Member extends ActiveRecord
             [['team_id', 'user_id', 'speciality_id'], 'integer'],
             [
                 'team_id', 'exist',
-                'targetClass' => $this->di('Team'),
+                'targetClass' => self::di('Team'),
                 'targetAttribute' => 'id',
             ],
             [
                 'user_id', 'exist',
-                'targetClass' => $this->di('User'),
+                'targetClass' => self::di('User'),
                 'targetAttribute' => $this->userPKName(),
             ],
             [
                 'speciality_id', 'exist',
-                'targetClass' => $this->di('Speciality'),
+                'targetClass' => self::di('Speciality'),
                 'targetAttribute' => 'id',
                 'skipOnEmpty' => true,
             ],
@@ -95,7 +95,7 @@ class Member extends ActiveRecord
      */
     public function getSpeciality()
     {
-        return $this->hasOne($this->di('Speciality'), ['id' => 'speciality_id']);
+        return $this->hasOne(self::di('Speciality'), ['id' => 'speciality_id']);
     }
 
     /**
@@ -103,7 +103,7 @@ class Member extends ActiveRecord
      */
     public function getTeam()
     {
-        return $this->hasOne($this->di('Team'), ['id' => 'team_id']);
+        return $this->hasOne(self::di('Team'), ['id' => 'team_id']);
     }
 
     /**
@@ -111,7 +111,7 @@ class Member extends ActiveRecord
      */
     public function getUser()
     {
-        return $this->hasOne($this->di('User'), [$this->userPKName() => 'user_id']);
+        return $this->hasOne(self::di('User'), [$this->userPKName() => 'user_id']);
     }
 
     /**

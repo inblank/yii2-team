@@ -14,7 +14,7 @@ trait CommonTrait
      * @return \inblank\team\Module
      * @throws InvalidConfigException
      */
-    static function getModule()
+    public static function getModule()
     {
         if (self::$_module === null) {
             if (empty(Yii::$app->modules['team'])) {
@@ -46,9 +46,9 @@ trait CommonTrait
      * @return mixed
      * @throws InvalidConfigException
      */
-    public function di($name)
+    public static function di($name)
     {
         $class = 'inblank\team\models\\' . $name;
-        return empty($this->getModule()->modelMap[$name]) ? $class : $this->getModule()->modelMap[$name];
+        return empty(self::getModule()->modelMap[$name]) ? $class : self::getModule()->modelMap[$name];
     }
 }

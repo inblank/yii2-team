@@ -74,7 +74,7 @@ class History extends \yii\db\ActiveRecord
      */
     public function getRole()
     {
-        return $this->hasOne($this->di('Role'), ['id' => 'role_id']);
+        return $this->hasOne(self::di('Role'), ['id' => 'role_id']);
     }
 
     /**
@@ -82,7 +82,7 @@ class History extends \yii\db\ActiveRecord
      */
     public function getSpeciality()
     {
-        return $this->hasOne($this->di('Speciality'), ['id' => 'speciality_id']);
+        return $this->hasOne(self::di('Speciality'), ['id' => 'speciality_id']);
     }
 
     /**
@@ -90,7 +90,7 @@ class History extends \yii\db\ActiveRecord
      */
     public function getTeam()
     {
-        return $this->hasOne($this->di('Team'), ['id' => 'team_id']);
+        return $this->hasOne(self::di('Team'), ['id' => 'team_id']);
     }
 
     /**
@@ -98,6 +98,6 @@ class History extends \yii\db\ActiveRecord
      */
     public function getUser()
     {
-        return $this->hasOne($this->di('User'), [$this->userPKName() => 'user_id']);
+        return $this->hasOne(self::di('User'), [$this->userPKName() => 'user_id']);
     }
 }

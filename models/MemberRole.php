@@ -48,22 +48,22 @@ class MemberRole extends ActiveRecord
             [['team_id', 'user_id', 'role_id'], 'integer'],
             [
                 'team_id', 'exist',
-                'targetClass' => $this->di('Team'),
+                'targetClass' => self::di('Team'),
                 'targetAttribute' => 'id'
             ],
             [
                 'user_id', 'exist',
-                'targetClass' => $this->di('User'),
+                'targetClass' => self::di('User'),
                 'targetAttribute' => $this->userPKName()
             ],
             [
                 'user_id', 'exist',
-                'targetClass' => $this->di('Member'),
+                'targetClass' => self::di('Member'),
                 'targetAttribute' => ['team_id', 'user_id'],
             ],
             [
                 'role_id', 'exist',
-                'targetClass' => $this->di('Role'),
+                'targetClass' => self::di('Role'),
                 'targetAttribute' => 'id'
             ],
             ['date', 'date', 'format' => 'php:Y-m-d H:i:s']
@@ -88,7 +88,7 @@ class MemberRole extends ActiveRecord
      */
     public function getRole()
     {
-        return $this->hasOne($this->di('Role'), ['id' => 'role_id']);
+        return $this->hasOne(self::di('Role'), ['id' => 'role_id']);
     }
 
     /**
@@ -96,7 +96,7 @@ class MemberRole extends ActiveRecord
      */
     public function getTeam()
     {
-        return $this->hasOne($this->di('Team'), ['id' => 'team_id']);
+        return $this->hasOne(self::di('Team'), ['id' => 'team_id']);
     }
 
     /**
@@ -104,7 +104,7 @@ class MemberRole extends ActiveRecord
      */
     public function getUser()
     {
-        return $this->hasOne($this->di('User'), [$this->userPKName() => 'user_id']);
+        return $this->hasOne(self::di('User'), [$this->userPKName() => 'user_id']);
     }
 
     /**

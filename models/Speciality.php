@@ -61,7 +61,7 @@ class Speciality extends ActiveRecord
     public function getHistories()
     {
         return $this->hasMany(
-            $this->di('History'),
+            self::di('History'),
             ['speciality_id' => 'id']
         );
     }

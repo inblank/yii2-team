@@ -70,7 +70,7 @@ class Team extends ActiveRecord
             ['name', 'required', 'except' => 'search',],
             [
                 ['creator_id', 'owner_id'], 'exist',
-                'targetClass' => $this->di('User'),
+                'targetClass' => self::di('User'),
                 'targetAttribute' => $this->userPKName(),
                 'skipOnEmpty' => true,
                 'except' => 'search',
@@ -107,7 +107,7 @@ class Team extends ActiveRecord
      */
     public function getOwner()
     {
-        return $this->hasOne($this->di('User'), [$this->userPKName() => 'owner_id']);
+        return $this->hasOne(self::di('User'), [$this->userPKName() => 'owner_id']);
     }
 
     /**
@@ -115,7 +115,7 @@ class Team extends ActiveRecord
      */
     public function getCreator()
     {
-        return $this->hasOne($this->di('User'), [$this->userPKName() => 'creator_id']);
+        return $this->hasOne(self::di('User'), [$this->userPKName() => 'creator_id']);
     }
 
     /**
