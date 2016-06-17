@@ -61,7 +61,7 @@ class Role extends ActiveRecord
     public function getHistories()
     {
         return $this->hasMany(
-            'inblank\team\models\History',
+            $this->di('History'),
             ['role_id' => 'id']
         );
     }

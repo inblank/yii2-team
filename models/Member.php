@@ -57,6 +57,22 @@ class Member extends ActiveRecord
         return [
             [['team_id', 'user_id'], 'required'],
             [['team_id', 'user_id', 'speciality_id'], 'integer'],
+            [
+                'team_id', 'exist',
+                'targetClass' => $this->di('Team'),
+                'targetAttribute' => 'id',
+            ],
+            [
+                'user_id', 'exist',
+                'targetClass' => $this->di('User'),
+                'targetAttribute' => $this->userPKName(),
+            ],
+            [
+                'speciality_id', 'exist',
+                'targetClass' => $this->di('Speciality'),
+                'targetAttribute' => 'id',
+                'skipOnEmpty' => true,
+            ],
             [['joined_at'], 'date', 'format' => 'php:Y-m-d H:i:s'],
         ];
     }
@@ -79,7 +95,7 @@ class Member extends ActiveRecord
      */
     public function getSpeciality()
     {
-        return $this->hasOne('inblank\team\models\Speciality', ['id' => 'speciality_id']);
+        return $this->hasOne($this->di('Speciality'), ['id' => 'speciality_id']);
     }
 
     /**
@@ -87,7 +103,7 @@ class Member extends ActiveRecord
      */
     public function getTeam()
     {
-        return $this->hasOne('inblank\team\models\Team', ['id' => 'team_id']);
+        return $this->hasOne($this->di('Team'), ['id' => 'team_id']);
     }
 
     /**
@@ -95,7 +111,7 @@ class Member extends ActiveRecord
      */
     public function getUser()
     {
-        return $this->hasOne($this->userClass, [$this->userClassPK() => 'user_id']);
+        return $this->hasOne($this->di('User'), [$this->userPKName() => 'user_id']);
     }
 
     /**

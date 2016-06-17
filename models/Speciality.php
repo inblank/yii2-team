@@ -61,7 +61,7 @@ class Speciality extends ActiveRecord
     public function getHistories()
     {
         return $this->hasMany(
-            'inblank\team\models\History',
+            $this->di('History'),
             ['speciality_id' => 'id']
         );
     }

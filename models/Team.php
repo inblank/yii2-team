@@ -67,18 +67,20 @@ class Team extends ActiveRecord
     public function rules()
     {
         return [
-            [['name', 'creator_id'], 'required', 'except' => 'search',],
+            ['name', 'required', 'except' => 'search',],
             [
                 ['creator_id', 'owner_id'], 'exist',
-                'targetClass' => $this->userClass,
-                'targetAttribute' => $this->userClassPK(),
+                'targetClass' => $this->di('User'),
+                'targetAttribute' => $this->userPKName(),
+                'skipOnEmpty' => true,
                 'except' => 'search',
             ],
             [['name', 'slug', 'emblem'], 'string', 'max' => 255],
             ['slug', 'unique'],
             [['created_at', 'disbanded_at'], 'date', 'format' => 'php:Y-m-d H:i:s'],
-            [['owner_id', 'disbanded_at'], 'default', 'value' => null],
+            [['creator_id', 'owner_id', 'disbanded_at'], 'default', 'value' => null],
             ['description', 'string'],
+            ['description', 'default', 'value' => ''],
         ];
     }
 
@@ -105,7 +107,7 @@ class Team extends ActiveRecord
      */
     public function getOwner()
     {
-        return $this->hasOne($this->userClass, [$this->userClassPK() => 'owner_id']);
+        return $this->hasOne($this->di('User'), [$this->userPKName() => 'owner_id']);
     }
 
     /**
@@ -113,7 +115,7 @@ class Team extends ActiveRecord
      */
     public function getCreator()
     {
-        return $this->hasOne($this->userClass, [$this->userClassPK() => 'creator_id']);
+        return $this->hasOne($this->di('User'), [$this->userPKName() => 'creator_id']);
     }
 
     /**
@@ -144,18 +146,6 @@ class Team extends ActiveRecord
     {
         // cannot delete team
         return false;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function beforeValidate()
-    {
-        if ($this->isNewRecord && $this->scenario != 'search') {
-            $this->creator_id = Yii::$app->user->id;
-            $this->owner_id = $this->creator_id;
-        }
-        return parent::beforeValidate();
     }
 
     /**

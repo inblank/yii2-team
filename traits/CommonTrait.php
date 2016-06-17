@@ -10,8 +10,6 @@ trait CommonTrait
 
     static protected $_module;
 
-    protected $userClass = 'inblank\team\models\User';
-
     /**
      * @return \inblank\team\Module
      * @throws InvalidConfigException
@@ -32,12 +30,25 @@ trait CommonTrait
      * @return string
      * @throws InvalidConfigException
      */
-    protected function userClassPK()
+    protected function userPKName()
     {
         static $pk;
         if ($pk === null) {
-            $pk = implode('', Yii::createObject($this->userClass)->primaryKey());
+            $class = $this->di('User');
+            $pk = implode('', $class::primaryKey());
         }
         return $pk;
+    }
+
+    /**
+     * Models dependency injection resolver
+     * @param string $name class name for resolve
+     * @return mixed
+     * @throws InvalidConfigException
+     */
+    public function di($name)
+    {
+        $class = 'inblank\team\models\\' . $name;
+        return empty($this->getModule()->modelMap[$name]) ? $class : $this->getModule()->modelMap[$name];
     }
 }
