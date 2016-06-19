@@ -63,6 +63,7 @@ class m160202_123350_team_init extends Migration
         $this->createTable($tab, [
             'team_id' => Schema::TYPE_INTEGER . ' NOT NULL',
             'user_id' => Schema::TYPE_INTEGER . ' NOT NULL',
+            'number' => Schema::TYPE_INTEGER . ' DEFAULT NULL',
             'speciality_id' => Schema::TYPE_INTEGER . ' DEFAULT NULL',
             'joined_at' => Schema::TYPE_DATETIME . ' DEFAULT NULL',
         ], $this->tableOptions);

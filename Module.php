@@ -16,6 +16,15 @@ class Module extends BaseModule
 {
     const VERSION = '0.1.0';
 
+    /**
+     * Default mode
+     */
+    const MODE_DEFAULT = 0;
+    /**
+     * Sport mode
+     */
+    const MODE_SPORT = 1;
+
     /** @var array Model map */
     public $modelMap = [];
     /**
@@ -34,6 +43,11 @@ class Module extends BaseModule
      * @See [[GroupUrlRule::prefix]]
      */
     public $urlPrefix = 'team';
+    /**
+     * Work mode
+     * @var int
+     */
+    public $mode = self::MODE_DEFAULT;
 
     /** @var array The rules for frontend to be used in URL management. */
     public $urlRulesFrontend = [
