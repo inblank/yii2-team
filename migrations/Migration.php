@@ -77,6 +77,8 @@ class Migration extends \yii\db\Migration
      */
     protected function fk($table1, $table2)
     {
+        $table1 = Yii::$app->db->tablePrefix.$table1;
+        $table2 = Yii::$app->db->tablePrefix.$table2;
         return 'fk__' . $this->tableGroup . $table1 . '__' . $table2;
     }
 
