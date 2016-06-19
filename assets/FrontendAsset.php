@@ -4,7 +4,7 @@ namespace inblank\team\assets;
 
 use yii\web\AssetBundle;
 
-class BackendAsset extends AssetBundle
+class FrontendAsset extends AssetBundle
 {
     public $sourcePath = '@inblank/team/assets/files';
     public $css = [

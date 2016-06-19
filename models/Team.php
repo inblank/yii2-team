@@ -23,6 +23,7 @@ use yii\db\Expression;
  * @property string $slug unique slug for generate personal team URL
  * @property string $emblem team emblem
  * @property string $name team name
+ * @property string $founded_at team founded date
  * @property string $description team description
  * @property string $created_at date of team creation
  * @property string $disbanded_at date of team disband
@@ -67,7 +68,7 @@ class Team extends ActiveRecord
     public function rules()
     {
         return [
-            ['name', 'required', 'except' => 'search',],
+            [['name', 'founded_at'], 'required', 'except' => 'search',],
             [
                 ['creator_id', 'owner_id'], 'exist',
                 'targetClass' => self::di('User'),
@@ -78,7 +79,8 @@ class Team extends ActiveRecord
             [['name', 'slug', 'emblem'], 'string', 'max' => 255],
             ['slug', 'unique'],
             [['created_at', 'disbanded_at'], 'date', 'format' => 'php:Y-m-d H:i:s'],
-            [['creator_id', 'owner_id', 'disbanded_at'], 'default', 'value' => null],
+            ['founded_at', 'date', 'format' => 'php:Y-m-d'],
+            [['creator_id', 'owner_id', 'founded_at', 'disbanded_at'], 'default', 'value' => null],
             ['description', 'string'],
             ['description', 'default', 'value' => ''],
         ];
@@ -96,6 +98,7 @@ class Team extends ActiveRecord
             'slug' => Yii::t('team_general', 'Slug'),
             'emblem' => Yii::t('team_general', 'Emblem'),
             'name' => Yii::t('team_general', 'Name'),
+            'founded_at' => Yii::t('team_general', 'Founded'),
             'description' => Yii::t('team_general', 'Description'),
             'created_at' => Yii::t('team_general', 'Created'),
             'disbanded_at' => Yii::t('team_general', 'Disbanded'),
@@ -167,4 +170,51 @@ class Team extends ActiveRecord
     {
         return $this->disbanded_at !== null;
     }
+
+    /**
+     * Change team emblem
+     * @param string $filename emblem filename
+     */
+    public function changeEmblem($filename)
+    {
+        if (!$this->isNewRecord) {
+            $path = $this->getEmblemPath();
+            if (!empty($this->emblem)) {
+                @unlink($path . '/' . $this->emblem);
+            }
+            $filename = Yii::getAlias('@webroot') . '/uploads/team/' . $filename;
+            $file = pathinfo($filename);
+            $file = $file['filename'] . '.' . $file['extension'];
+            $this->emblem = $file;
+            if ($this->save(false, ['emblem'])) {
+                copy($filename, $path . '/' . $file);
+                @unlink($filename);
+            }
+        }
+    }
+
+    /**
+     * Get absolute team emblem path in filesystem
+     * @return string
+     */
+    static public function getEmblemPath()
+    {
+        static $path;
+        if ($path === null) {
+            $path = Yii::getAlias('@webroot') . '/' . (defined('IS_BACKEND') ? '../' : '') . rtrim(Yii::$app->modules['team']->emblemPath, '/');
+        }
+        return $path;
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getMembers()
+    {
+        return $this->hasMany(
+            $this->di('Member'),
+            ['team_id' => 'id']
+        )->joinWith(['user', 'speciality']);
+    }
+
 }

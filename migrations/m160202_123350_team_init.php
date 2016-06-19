@@ -40,6 +40,7 @@ class m160202_123350_team_init extends Migration
             'slug' => Schema::TYPE_STRING . '(255) NOT NULL',
             'emblem' => Schema::TYPE_STRING . '(255) DEFAULT NULL',
             'name' => Schema::TYPE_STRING . '(255) NOT NULL',
+            'founded_at' => Schema::TYPE_DATE . ' DEFAULT NULL',
             'description' => Schema::TYPE_TEXT . ' NOT NULL',
             'created_at' => Schema::TYPE_DATETIME . ' DEFAULT NULL',
             'disbanded_at' => Schema::TYPE_DATETIME . ' DEFAULT NULL',
