@@ -7,8 +7,9 @@ class m160202_123350_team_init extends Migration
 {
     const TAB_ROLE = 'role';
     const TAB_SPECIALITY = 'speciality';
-    const TAB_TEAM = 'team';
     const TAB_MEMBER = 'member';
+    const TAB_TEAM = 'team';
+    const TAB_TEAM_MEMBER = 'team_member';
     const TAB_MEMBER_ROLE = 'member_role';
     const TAB_HISTORY = 'history';
 
@@ -30,6 +31,26 @@ class m160202_123350_team_init extends Migration
             'id' => Schema::TYPE_PK,
             'name' => Schema::TYPE_STRING . "(255) NOT NULL DEFAULT ''",
         ], $this->tableOptions);
+
+        // Members
+        $tab = $this->tn(self::TAB_MEMBER);
+        $this->createTable($tab, [
+            'id' => Schema::TYPE_PK,
+            'user_id' => Schema::TYPE_INTEGER . ' NOT NULL',
+            'speciality_id' => Schema::TYPE_INTEGER . ' DEFAULT NULL',
+        ], $this->tableOptions);
+        $this->addForeignKey(
+            $this->fk(self::TAB_MEMBER, 'user'),
+            $tab, 'user_id',
+            $userTableName, $userTablePrimaryKey,
+            'CASCADE', 'RESTRICT'
+        );
+        $this->addForeignKey(
+            $this->fk(self::TAB_MEMBER, self::TAB_SPECIALITY),
+            $tab, 'speciality_id',
+            $this->tn(self::TAB_SPECIALITY), 'id',
+            'CASCADE', 'RESTRICT'
+        );
 
         // Teams
         $tab = $this->tn(self::TAB_TEAM);
@@ -60,33 +81,33 @@ class m160202_123350_team_init extends Migration
         );
 
         // Members
-        $tab = $this->tn(self::TAB_MEMBER);
+        $tab = $this->tn(self::TAB_TEAM_MEMBER);
         $this->createTable($tab, [
             'team_id' => Schema::TYPE_INTEGER . ' NOT NULL',
-            'user_id' => Schema::TYPE_INTEGER . ' NOT NULL',
+            'member_id' => Schema::TYPE_INTEGER . ' NOT NULL',
             'number' => Schema::TYPE_INTEGER . ' DEFAULT NULL',
             'speciality_id' => Schema::TYPE_INTEGER . ' DEFAULT NULL',
             'joined_at' => Schema::TYPE_DATETIME . ' DEFAULT NULL',
         ], $this->tableOptions);
         $this->addPrimaryKey(
-            $this->pk(self::TAB_MEMBER),
+            $this->pk(self::TAB_TEAM_MEMBER),
             $tab,
-            ['team_id', 'user_id']
+            ['team_id', 'member_id']
         );
         $this->addForeignKey(
-            $this->fk(self::TAB_MEMBER, self::TAB_TEAM),
+            $this->fk(self::TAB_TEAM_MEMBER, self::TAB_TEAM),
             $tab, 'team_id',
             $this->tn(self::TAB_TEAM), 'id',
             'CASCADE', 'RESTRICT'
         );
         $this->addForeignKey(
-            $this->fk(self::TAB_MEMBER, 'user'),
-            $tab, 'user_id',
-            $userTableName, $userTablePrimaryKey,
+            $this->fk(self::TAB_TEAM_MEMBER, self::TAB_MEMBER),
+            $tab, 'member_id',
+            $this->tn(self::TAB_MEMBER), 'id',
             'CASCADE', 'RESTRICT'
         );
         $this->addForeignKey(
-            $this->fk(self::TAB_MEMBER, self::TAB_SPECIALITY),
+            $this->fk(self::TAB_TEAM_MEMBER, self::TAB_SPECIALITY),
             $tab, 'speciality_id',
             $this->tn(self::TAB_SPECIALITY), 'id',
             'CASCADE', 'RESTRICT'
@@ -96,14 +117,14 @@ class m160202_123350_team_init extends Migration
         $tab = $this->tn(self::TAB_MEMBER_ROLE);
         $this->createTable($tab, [
             'team_id' => Schema::TYPE_INTEGER . ' DEFAULT NULL',
-            'user_id' => Schema::TYPE_INTEGER . ' DEFAULT NULL',
+            'member_id' => Schema::TYPE_INTEGER . ' DEFAULT NULL',
             'role_id' => Schema::TYPE_INTEGER . " DEFAULT NULL",
             'date' => Schema::TYPE_DATETIME . ' DEFAULT NULL',
         ], $this->tableOptions);
         $this->addPrimaryKey(
             $this->pk(self::TAB_MEMBER_ROLE),
             $tab,
-            ['team_id', 'user_id', 'role_id']
+            ['team_id', 'member_id', 'role_id']
         );
         $this->addForeignKey(
             $this->fk(self::TAB_MEMBER_ROLE, self::TAB_TEAM),
@@ -112,9 +133,9 @@ class m160202_123350_team_init extends Migration
             'CASCADE', 'RESTRICT'
         );
         $this->addForeignKey(
-            $this->fk(self::TAB_MEMBER_ROLE, 'user'),
-            $tab, 'user_id',
-            $userTableName, $userTablePrimaryKey,
+            $this->fk(self::TAB_MEMBER_ROLE, self::TAB_MEMBER),
+            $tab, 'member_id',
+            $this->tn(self::TAB_MEMBER), 'id',
             'CASCADE', 'RESTRICT'
         );
         $this->addForeignKey(
@@ -129,7 +150,7 @@ class m160202_123350_team_init extends Migration
         $this->createTable($tab, [
             'id' => Schema::TYPE_PK,
             'team_id' => Schema::TYPE_INTEGER . ' NOT NULL',
-            'user_id' => Schema::TYPE_INTEGER . ' NOT NULL',
+            'member_id' => Schema::TYPE_INTEGER . ' NOT NULL',
             'role_id' => Schema::TYPE_INTEGER . ' DEFAULT NULL',
             'speciality_id' => Schema::TYPE_INTEGER . ' DEFAULT NULL',
             'action' => Schema::TYPE_INTEGER . ' NOT NULL DEFAULT 0',
@@ -142,9 +163,9 @@ class m160202_123350_team_init extends Migration
             'CASCADE', 'RESTRICT'
         );
         $this->addForeignKey(
-            $this->fk(self::TAB_HISTORY, 'user'),
-            $tab, 'user_id',
-            $userTableName, $userTablePrimaryKey,
+            $this->fk(self::TAB_HISTORY, self::TAB_MEMBER),
+            $tab, 'member_id',
+            $this->tn(self::TAB_MEMBER), 'id',
             'CASCADE', 'RESTRICT'
         );
         $this->addForeignKey(
@@ -166,8 +187,9 @@ class m160202_123350_team_init extends Migration
         $tables = [
             self::TAB_HISTORY,
             self::TAB_MEMBER_ROLE,
-            self::TAB_MEMBER,
+            self::TAB_TEAM_MEMBER,
             self::TAB_TEAM,
+            self::TAB_MEMBER,
             self::TAB_SPECIALITY,
             self::TAB_ROLE,
         ];

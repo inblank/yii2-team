@@ -1,6 +1,6 @@
 <?php
 /**
- * Member's role in team model in the module yii2-team
+ * Team's member model in the module yii2-team
  *
  * @link https://github.com/inblank/yii2-team
  * @copyright Copyright (c) 2016 Pavel Aleksandrov <inblank@yandex.ru>
@@ -15,18 +15,18 @@ use yii\db\ActiveRecord;
 use yii\db\Expression;
 
 /**
- * This is the model class for table "{{%team_member_role}}".
+ * This is the model class for table "{{%team_team_member}}".
  *
  * @property integer $team_id team identifier
  * @property integer $member_id member identifier
- * @property integer $role_id role identifier
- * @property string $date date from
+ * @property integer $speciality_id member speciality
+ * @property string $joined_at team join date
  *
- * @property Role $role role
+ * @property Speciality $speciality member speciality
  * @property Team $team team
- * @property Member $member member
+ * @property ActiveRecord $user user
  */
-class MemberRole extends ActiveRecord
+class TeamMember extends ActiveRecord
 {
     use CommonTrait;
 
@@ -35,7 +35,7 @@ class MemberRole extends ActiveRecord
      */
     public static function tableName()
     {
-        return '{{%team_member_role}}';
+        return '{{%team_team_member}}';
     }
 
     /**
@@ -44,19 +44,25 @@ class MemberRole extends ActiveRecord
     public function rules()
     {
         return [
-            [['team_id', 'member_id', 'role_id'], 'required'],
-            [['team_id', 'member_id', 'role_id'], 'integer'],
+            [['team_id', 'member_id'], 'required'],
+            [['team_id', 'member_id', 'speciality_id'], 'integer'],
+            [
+                'team_id', 'exist',
+                'targetClass' => self::di('Team'),
+                'targetAttribute' => 'id',
+            ],
             [
                 'member_id', 'exist',
-                'targetClass' => self::di('TeamMember'),
-                'targetAttribute' => ['team_id', 'member_id'],
+                'targetClass' => self::di('Member'),
+                'targetAttribute' => 'id',
             ],
             [
-                'role_id', 'exist',
-                'targetClass' => self::di('Role'),
-                'targetAttribute' => 'id'
+                'speciality_id', 'exist',
+                'targetClass' => self::di('Speciality'),
+                'targetAttribute' => 'id',
+                'skipOnEmpty' => true,
             ],
-            ['date', 'date', 'format' => 'php:Y-m-d H:i:s']
+            [['joined_at'], 'date', 'format' => 'php:Y-m-d H:i:s'],
         ];
     }
 
@@ -68,21 +74,21 @@ class MemberRole extends ActiveRecord
         return [
             'team_id' => Yii::t('team_general', 'Team'),
             'member_id' => Yii::t('team_general', 'Member'),
-            'role_id' => Yii::t('team_general', 'Role'),
-            'date' => Yii::t('team_general', 'Date'),
+            'speciality_id' => Yii::t('team_general', 'Speciality'),
+            'joined_at' => Yii::t('team_general', 'Joined'),
         ];
     }
 
     /**
-     * @return \yii\db\ActiveQuery
+     * @return Speciality
      */
-    public function getRole()
+    public function getSpeciality()
     {
-        return $this->hasOne(self::di('Role'), ['id' => 'role_id']);
+        return $this->hasOne(self::di('Speciality'), ['id' => 'speciality_id']);
     }
 
     /**
-     * @return \yii\db\ActiveQuery
+     * @return Team
      */
     public function getTeam()
     {
@@ -94,7 +100,7 @@ class MemberRole extends ActiveRecord
      */
     public function getMember()
     {
-        return $this->hasOne(self::di('Member'), ['id' => 'member_id']);
+        return $this->hasOne(self::di('Member'), ['id' => 'user_id']);
     }
 
     /**
@@ -105,11 +111,10 @@ class MemberRole extends ActiveRecord
         return [
             [
                 'class' => yii\behaviors\TimestampBehavior::className(),
-                'createdAtAttribute' => 'date',
+                'createdAtAttribute' => 'joined_at',
                 'updatedAtAttribute' => false,
                 'value' => new Expression('NOW()'),
             ]
         ];
     }
-
 }

@@ -60,9 +60,15 @@ class Role extends ActiveRecord
      */
     public function getHistories()
     {
-        return $this->hasMany(
-            self::di('History'),
-            ['role_id' => 'id']
-        );
+        return $this->hasMany(self::di('History'), ['role_id' => 'id']);
+    }
+
+    /**
+     * Get members with this role
+     * @return \yii\db\ActiveQuery
+     */
+    public function getMembers()
+    {
+        return $this->hasMany(self::di('MemberRole'), ['role_id' => 'id']);
     }
 }

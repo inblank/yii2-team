@@ -20,7 +20,7 @@ use yii\db\Expression;
  *
  * @property integer $id history record identifier
  * @property integer $team_id team identifier
- * @property integer $user_id user identifier
+ * @property integer $member_id member identifier
  * @property integer $role_id role identifier
  * @property integer $speciality_id speciality id
  * @property integer $action history action
@@ -29,9 +29,9 @@ use yii\db\Expression;
  * @property Role $role role
  * @property Speciality $speciality speciality
  * @property Team $team team
- * @property ActiveRecord $user user
+ * @property Member $member member
  */
-class History extends \yii\db\ActiveRecord
+class History extends ActiveRecord
 {
     use CommonTrait;
 
@@ -56,22 +56,12 @@ class History extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['team_id', 'user_id', 'action'], 'required'],
-            [['team_id', 'user_id', 'role_id', 'speciality_id', 'action'], 'integer'],
+            [['team_id', 'member_id', 'action'], 'required'],
+            [['team_id', 'member_id', 'role_id', 'speciality_id', 'action'], 'integer'],
             [
-                'team_id', 'exist',
-                'targetClass' => self::di('Team'),
-                'targetAttribute' => 'id'
-            ],
-            [
-                'user_id', 'exist',
-                'targetClass' => self::di('User'),
-                'targetAttribute' => self::userPKName()
-            ],
-            [
-                'user_id', 'exist',
-                'targetClass' => self::di('Member'),
-                'targetAttribute' => ['team_id', 'user_id'],
+                'member_id', 'exist',
+                'targetClass' => self::di('TeamMember'),
+                'targetAttribute' => ['team_id', 'member_id'],
             ],
             [['role_id', 'speciality_id'], 'default', 'value' => null],
             [
@@ -99,7 +89,7 @@ class History extends \yii\db\ActiveRecord
         return [
             'id' => Yii::t('team_general', 'ID'),
             'team_id' => Yii::t('team_general', 'Team'),
-            'user_id' => Yii::t('team_general', 'User'),
+            'member_id' => Yii::t('team_general', 'Member'),
             'role_id' => Yii::t('team_general', 'Role'),
             'speciality_id' => Yii::t('team_general', 'Speciality'),
             'action' => Yii::t('team_general', 'Action'),
@@ -149,35 +139,35 @@ class History extends \yii\db\ActiveRecord
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getUser()
+    public function getMember()
     {
-        return $this->hasOne(self::di('User'), [$this->userPKName() => 'user_id']);
+        return $this->hasOne(self::di('Member'), ['id' => 'member_id']);
     }
 
     /**
      * History action
      * @param integer $action history action id: self::ACTION_ADD, self::ACTION_CHANGE, self::ACTION_DELETE
      * @param ActiveRecord $team team model
-     * @param ActiveRecord $user user model
+     * @param ActiveRecord $member member model
      * @param ActiveRecord|null $subject subject model Role or Speciality.
      * @return bool
      * @throws \yii\base\InvalidConfigException
      */
-    protected static function _action($action, ActiveRecord $team, ActiveRecord $user, ActiveRecord $subject = null)
+    protected static function _action($action, ActiveRecord $team, ActiveRecord $member, ActiveRecord $subject = null)
     {
         $class = self::di('Team');
         if (!($team instanceof $class)) {
             throw new InvalidParamException('Not Team object to History action');
         }
-        $class = self::di('User');
-        if (!($user instanceof $class)) {
-            throw new InvalidParamException('Not User object to History action');
+        $class = self::di('Member');
+        if (!($member instanceof $class)) {
+            throw new InvalidParamException('Not Member object to History action');
         }
         /** @var self $record */
         $record = Yii::createObject([
             'class' => self::di('History'),
             'team_id' => $team->id,
-            'user_id' => $user->{self::userPKName()},
+            'member_id' => $member->id,
             'action' => $action,
         ]);
         if ($subject !== null) {
@@ -218,49 +208,49 @@ class History extends \yii\db\ActiveRecord
     /**
      * Add role to member action
      * @param ActiveRecord $team team model
-     * @param ActiveRecord $user user model
+     * @param ActiveRecord $member member model
      * @param ActiveRecord $role role model
      * @return bool
      */
-    public static function addRole($team, $user, $role)
+    public static function addRole($team, $member, $role)
     {
-        return self::_action(self::ACTION_ADD, $team, $user, $role);
+        return self::_action(self::ACTION_ADD, $team, $member, $role);
     }
 
     /**
      * Delete role from member action
      * @param ActiveRecord $team team model
-     * @param ActiveRecord $user user model
+     * @param ActiveRecord $member member model
      * @param ActiveRecord $role role model
      * @return bool
      */
-    public static function deleteRole($team, $user, $role)
+    public static function deleteRole($team, $member, $role)
     {
-        return self::_action(self::ACTION_DELETE, $team, $user, $role);
+        return self::_action(self::ACTION_DELETE, $team, $member, $role);
     }
 
     /**
      * Add speciality to member action
      * @param ActiveRecord $team team model
-     * @param ActiveRecord $user user model
+     * @param ActiveRecord $member member model
      * @param ActiveRecord $speciality speciality model
      * @return bool
      */
-    public static function addSpeciality($team, $user, $speciality)
+    public static function addSpeciality($team, $member, $speciality)
     {
-        return self::_action(self::ACTION_ADD, $team, $user, $speciality);
+        return self::_action(self::ACTION_ADD, $team, $member, $speciality);
     }
 
     /**
      * Change speciality for member action
      * @param ActiveRecord $team team model
-     * @param ActiveRecord $user user model
+     * @param ActiveRecord $member member model
      * @param ActiveRecord $speciality speciality model
      * @return bool
      */
-    public static function changeSpeciality($team, $user, $speciality)
+    public static function changeSpeciality($team, $member, $speciality)
     {
-        return self::_action(self::ACTION_CHANGE, $team, $user, $speciality);
+        return self::_action(self::ACTION_CHANGE, $team, $member, $speciality);
     }
 
 }

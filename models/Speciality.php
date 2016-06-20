@@ -60,9 +60,24 @@ class Speciality extends ActiveRecord
      */
     public function getHistories()
     {
-        return $this->hasMany(
-            self::di('History'),
-            ['speciality_id' => 'id']
-        );
+        return $this->hasMany(self::di('History'), ['speciality_id' => 'id']);
+    }
+
+    /**
+     * Get members with this speciality as default
+     * @return \yii\db\ActiveQuery
+     */
+    public function getMembers()
+    {
+        return $this->hasMany(self::di('Member'), ['speciality_id' => 'id']);
+    }
+
+    /**
+     * Get team's members with this speciality
+     * @return \yii\db\ActiveQuery
+     */
+    public function getTeamMembers()
+    {
+        return $this->hasMany(self::di('TeamMember'), ['speciality_id' => 'id']);
     }
 }
